@@ -77,6 +77,19 @@ jobs:
       - name: Tetapkan tracking URI berbasis berkas
         run: echo "MLFLOW_TRACKING_URI=file://${GITHUB_WORKSPACE}/MLProject/mlruns" >> "$GITHUB_ENV"
 
+      # Penyimpanan berkas MLflow TIDAK portabel antar mesin: berkas meta.yaml
+      # menyimpan artifact_uri sebagai jalur absolut. Bila mlruns/ hasil mesin
+      # lain ikut ter-checkout, MLflow akan mencoba menulis ke jalur asing
+      # tersebut dan gagal dengan PermissionError.
+      #
+      # Karena itu setiap run CI selalu dimulai dari keadaan bersih. Artefak
+      # yang di-commit kembali ke repositori adalah murni hasil CI ini, dengan
+      # jalur yang konsisten dengan runner.
+      - name: Bersihkan artefak MLflow dari run sebelumnya
+        run: |
+          rm -rf MLProject/mlruns MLProject/run_id.txt
+          echo "Direktori mlruns disiapkan dalam keadaan bersih."
+
       # ------------------------------------------------------------------ #
       # Pelatihan lewat MLflow Project
       # ------------------------------------------------------------------ #
