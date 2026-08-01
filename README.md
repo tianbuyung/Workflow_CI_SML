@@ -1,4 +1,4 @@
-# Workflow-CI — Pelatihan Ulang Otomatis Model Likuiditas Saham IDX
+# Workflow_CI_SML — Pelatihan Ulang Otomatis Model Likuiditas Saham IDX
 
 Repositori **Kriteria 3** submission kelas *Membangun Sistem Machine Learning* (Dicoding).
 
@@ -17,7 +17,7 @@ hasilnya menjadi image Docker dan mengirimkannya ke Docker Hub.
 ## Struktur Repositori
 
 ```text
-Workflow-CI
+Workflow_CI_SML
 ├── .github/workflows/
 │   └── ci.yml                              # workflow CI
 └── MLProject/
