@@ -1,0 +1,22 @@
+# Kriteria 3 — Workflow CI pelatihan ulang otomatis
+# Environment: Python 3.12.7 (sesuai anjuran kelas MSML Dicoding)
+#
+# Versi di sini harus sama dengan MLProject/conda.yaml agar hasil pelatihan
+# lewat pip (CI) dan lewat conda (lokal) identik.
+
+# Pelacakan eksperimen dan MLflow Project
+mlflow==2.19.0
+
+# Pemodelan
+scikit-learn==1.5.2
+
+# Manipulasi data & komputasi numerik
+pandas==2.3.3
+numpy==1.26.4
+scipy==1.17.1
+
+# Visualisasi artefak evaluasi
+matplotlib==3.11.1
+
+# Serialisasi model
+cloudpickle==3.1.2
