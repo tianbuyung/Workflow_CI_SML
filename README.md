@@ -64,7 +64,7 @@ mlflow run MLProject --env-manager=conda
 mlflow models build-docker \
   --model-uri "runs:/$(cat MLProject/run_id.txt)/model" \
   --name tiandev/idx-liquidity-model \
-  --enable-mlserver
+  --env-manager local
 
 docker run -d --rm -p 5005:8080 tiandev/idx-liquidity-model:latest
 ```
