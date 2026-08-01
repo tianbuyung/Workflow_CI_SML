@@ -1,0 +1,38 @@
+name: idx-liquidity-model
+
+# Definisi environment untuk MLflow Project.
+# Di runner CI, `mlflow run` dipanggil dengan --env-manager=local karena
+# dependensi sudah dipasang lebih dulu lewat pip; berkas conda.yaml tetap
+# disediakan agar proyek ini dapat dijalankan ulang di mesin mana pun dengan
+# `mlflow run . --env-manager=conda`.
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      n_estimators:
+        type: int
+        default: 746
+      max_depth:
+        type: int
+        default: 32
+      min_samples_split:
+        type: int
+        default: 13
+      min_samples_leaf:
+        type: int
+        default: 3
+      max_features:
+        type: string
+        default: "sqrt"
+      bootstrap:
+        type: string
+        default: "False"
+    command: >-
+      python modelling.py
+      --n-estimators {n_estimators}
+      --max-depth {max_depth}
+      --min-samples-split {min_samples_split}
+      --min-samples-leaf {min_samples_leaf}
+      --max-features {max_features}
+      --bootstrap {bootstrap}

@@ -1,0 +1,110 @@
+Tautan Docker Hub — Kriteria 3 tingkat Advance
+===============================================
+
+Repositori image
+----------------
+https://hub.docker.com/r/tiandev/idx-liquidity-model
+
+
+Tag yang tersedia
+-----------------
+  tiandev/idx-liquidity-model:latest    build terakhir
+  tiandev/idx-liquidity-model:<nomor>   nomor run GitHub Actions
+
+
+Cara Menarik dan Menjalankan
+----------------------------
+  docker pull tiandev/idx-liquidity-model:latest
+
+  docker run -d --rm -p 5005:8080 \
+    --name idx-liquidity \
+    tiandev/idx-liquidity-model:latest
+
+Model akan melayani permintaan pada http://127.0.0.1:5005/invocations
+
+
+Endpoint yang Tersedia
+----------------------
+  GET  /ping           pemeriksaan kesehatan (200 = siap)
+  POST /invocations    inferensi
+
+
+Contoh Permintaan Inferensi
+---------------------------
+  curl -X POST http://127.0.0.1:5005/invocations \
+    -H "Content-Type: application/json" \
+    -d @MLProject/mlruns/<experiment_id>/<run_id>/artifacts/model/serving_input_example.json
+
+Berkas serving_input_example.json disertakan MLflow di dalam artefak model
+dan berisi contoh permintaan yang sudah sesuai signature model.
+
+Contoh keluaran:
+
+  {"predictions": ["Menengah", "Tidak Likuid", "Menengah"]}
+
+
+Cara Image Ini Dibangun
+-----------------------
+Image dibangun otomatis oleh GitHub Actions memakai perintah bawaan MLflow:
+
+  mlflow models build-docker \
+    --model-uri "runs:/<run_id>/model" \
+    --name tiandev/idx-liquidity-model \
+    --env-manager local
+
+Perintah tersebut membungkus model beserta seluruh dependensinya sesuai
+berkas requirements.txt yang tercatat pada artefak MLflow, sehingga
+lingkungan inferensi identik dengan lingkungan pelatihan.
+
+
+Catatan Dua Penyesuaian Wajib
+-----------------------------
+Opsi di atas bukan pilihan gaya, melainkan keharusan akibat ketidakcocokan
+pada versi pustaka yang dianjurkan kelas.
+
+1. --env-manager local
+
+   Secara bawaan build-docker memakai env-manager 'virtualenv', yang
+   menghasilkan Dockerfile berbasis ubuntu:20.04, memasang Python 3.9,
+   lalu mengunduh get-pip.py. Sejak pypa menghentikan dukungan Python 3.9,
+   skrip itu menolak berjalan:
+
+     ERROR: This script does not work on Python 3.9.
+     The minimum supported Python version is 3.10.
+
+   Akibatnya build selalu gagal. Dengan --env-manager local, MLflow memakai
+   basis python:<versi>-slim dan memasang dependensi langsung lewat pip.
+
+2. TANPA --enable-mlserver
+
+   MLflow 2.19.0 memasang MLServer 1.3.5, yang memanggil
+   asyncio.get_event_loop() dan gagal pada Python 3.12:
+
+     RuntimeError: There is no current event loop in thread 'MainThread'
+
+   Seluruh worker MLServer crash sehingga model tidak pernah dimuat
+   (/v2/health/ready mengembalikan 400). Server scoring bawaan MLflow
+   dipakai sebagai gantinya, dan endpoint /ping serta /invocations yang
+   dihasilkannya justru lebih sesuai untuk kriteria monitoring.
+
+
+Isi Model
+---------
+Algoritma     : RandomForestClassifier (scikit-learn 1.5.2)
+Target        : kelas likuiditas emiten BEI tahun berikutnya
+                (Tidak Likuid / Menengah / Likuid)
+Jumlah fitur  : 28 (16 numerik + 12 hasil one-hot encoding sektor)
+Metrik uji    : F1 makro 0,7118 | akurasi 0,7247
+Tolok ukur    : mengalahkan strategi naif "salin kelas tahun lalu"
+                (F1 makro 0,6590) dengan selisih +0,0528
+
+
+Secret yang Diperlukan Workflow
+-------------------------------
+Disimpan di GitHub: Settings -> Secrets and variables -> Actions
+
+  DOCKERHUB_USERNAME   username Docker Hub
+  DOCKERHUB_TOKEN      access token dari Docker Hub
+                       (Account Settings -> Personal access tokens)
+  DAGSHUB_TOKEN        token DagsHub, opsional — dipakai untuk menyalin
+                       run ke DagsHub dan tidak menggagalkan CI bila kosong

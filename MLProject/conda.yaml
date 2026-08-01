@@ -1,0 +1,20 @@
+name: idx-liquidity-model
+
+channels:
+  - conda-forge
+
+dependencies:
+  # Versi Python sesuai anjuran kelas MSML Dicoding
+  - python=3.12.7
+  - pip=24.2
+  - pip:
+      # Pelacakan eksperimen. Versi 2.19.0 sesuai anjuran kelas; autolog pada
+      # versi ini teruji untuk scikit-learn <= 1.5.2, sehingga scikit-learn
+      # dipatok pada versi tersebut agar konsisten di seluruh kriteria.
+      - mlflow==2.19.0
+      - scikit-learn==1.5.2
+      - pandas==2.3.3
+      - numpy==1.26.4
+      - scipy==1.17.1
+      - matplotlib==3.11.1
+      - cloudpickle==3.1.2

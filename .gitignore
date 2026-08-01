@@ -1,0 +1,21 @@
+# Environment
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Sistem operasi
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# CATATAN: MLProject/mlruns/ dan MLProject/run_id.txt TIDAK diabaikan.
+# Keduanya sengaja di-commit karena kriteria 3 tingkat Skilled mensyaratkan
+# artefak hasil CI tersimpan di repositori.
