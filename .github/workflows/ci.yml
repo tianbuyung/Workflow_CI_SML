@@ -206,7 +206,7 @@ jobs:
           fi
 
       - name: Login ke Docker Hub
-        if: ${{ steps.kredensial.outputs.tersedia == 'true' && inputs.push_docker != false }}
+        if: ${{ steps.kredensial.outputs.tersedia == 'true' && (github.event_name != 'workflow_dispatch' || inputs.push_docker) }}
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -231,7 +231,7 @@ jobs:
       #    bawaan MLflow dipakai sebagai gantinya, mengekspos /ping dan
       #    /invocations yang justru lebih sesuai untuk kriteria monitoring.
       - name: Bangun image dengan mlflow build-docker
-        if: ${{ steps.kredensial.outputs.tersedia == 'true' && inputs.push_docker != false }}
+        if: ${{ steps.kredensial.outputs.tersedia == 'true' && (github.event_name != 'workflow_dispatch' || inputs.push_docker) }}
         env:
           RUN_ID: ${{ steps.run.outputs.run_id }}
         run: |
@@ -241,7 +241,7 @@ jobs:
             --env-manager local
 
       - name: Beri tag dan kirim ke Docker Hub
-        if: ${{ steps.kredensial.outputs.tersedia == 'true' && inputs.push_docker != false }}
+        if: ${{ steps.kredensial.outputs.tersedia == 'true' && (github.event_name != 'workflow_dispatch' || inputs.push_docker) }}
         run: |
           docker tag "${NAMA_IMAGE}" "${NAMA_IMAGE}:${{ github.run_number }}"
           docker push "${NAMA_IMAGE}:latest"
