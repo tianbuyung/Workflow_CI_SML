@@ -15,8 +15,8 @@ flavors:
     sklearn_version: 1.5.2
 mlflow_version: 2.19.0
 model_size_bytes: 9572966
-model_uuid: 009ed1fc313c48b0ad8c72e21f1e48df
-run_id: 07246c7d371f4917859cf90debf16781
+model_uuid: b42c4e3ba73f43789facc75c2bc96817
+run_id: 144cd7991ea046758916264fac15c5fb
 saved_input_example_info:
   artifact_path: input_example.json
   pandas_orient: split
@@ -48,4 +48,4 @@ signature:
     & Logistics", "required": true}]'
   outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "object", "shape": [-1]}}]'
   params: null
-utc_time_created: '2026-08-01 10:43:31.547884'
+utc_time_created: '2026-08-01 10:48:32.825092'
