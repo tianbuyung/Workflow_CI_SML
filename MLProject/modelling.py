@@ -34,8 +34,10 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 
+import joblib
 import matplotlib.pyplot as plt
 import mlflow
+import mlflow.pyfunc
 import mlflow.sklearn
 import numpy as np
 import pandas as pd
@@ -69,6 +71,37 @@ N_LIPATAN_CV = 5
 # --------------------------------------------------------------------------- #
 # Data
 # --------------------------------------------------------------------------- #
+
+class PembungkusLikuiditas(mlflow.pyfunc.PythonModel):
+    """Pembungkus pyfunc yang mengembalikan kelas sekaligus probabilitasnya.
+
+    Server scoring MLflow secara bawaan hanya memanggil ``predict()``, sehingga
+    responsnya berisi label kelas saja. Padahal pemantauan model membutuhkan
+    **tingkat keyakinan**: model dapat terus memberi jawaban benar sambil
+    diam-diam menjadi makin ragu, dan itu tanda awal bahwa data yang masuk
+    sudah bergeser dari data pelatihan.
+
+    Pembungkus ini memanggil ``predict_proba()`` lalu mengembalikan DataFrame
+    berisi kelas terpilih, keyakinannya, dan probabilitas seluruh kelas — bentuk
+    yang mudah dibaca manusia sekaligus siap diolah exporter Prometheus.
+    """
+
+    def load_context(self, context):
+        self._model = joblib.load(context.artifacts["model_sklearn"])
+
+    def predict(self, context, model_input, params=None):
+        peluang = self._model.predict_proba(model_input)
+        kelas = list(self._model.classes_)
+        terpilih = peluang.argmax(axis=1)
+
+        hasil = pd.DataFrame({
+            "kelas": [kelas[i] for i in terpilih],
+            "keyakinan": peluang.max(axis=1),
+        })
+        for posisi, nama in enumerate(kelas):
+            hasil["proba_" + nama.replace(" ", "_").lower()] = peluang[:, posisi]
+        return hasil
+
 
 def muat_dataset(dir_data: Path) -> dict:
     """Baca data latih, data uji, dan metadata preprocessing."""
@@ -292,15 +325,49 @@ def main() -> int:
 
         mlflow.log_metrics(metrik)
 
-        # Signature dan input example diperlukan agar image Docker hasil
+        # Dua model dicatat dengan peran berbeda:
+        #
+        #   model_sklearn — estimator mentah, untuk analisis lanjutan
+        #   model         — pembungkus pyfunc yang DIPAKAI SAAT SERVING, dan
+        #                   inilah yang dibungkus menjadi image Docker
+        #
+        # Signature dan input example diperlukan agar image hasil
         # `mlflow models build-docker` dapat memvalidasi permintaan inferensi.
-        signature = infer_signature(data["X_train"], model.predict(data["X_train"]))
         mlflow.sklearn.log_model(
             sk_model=model,
-            artifact_path="model",
-            signature=signature,
+            artifact_path="model_sklearn",
             input_example=data["X_train"].head(3),
         )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            jalur_sklearn = Path(tmp) / "model.pkl"
+            joblib.dump(model, jalur_sklearn)
+
+            pembungkus = PembungkusLikuiditas()
+            contoh_masukan = data["X_train"].head(3)
+            contoh_keluaran = pd.DataFrame({
+                "kelas": model.predict(contoh_masukan),
+                "keyakinan": model.predict_proba(contoh_masukan).max(axis=1),
+                **{
+                    "proba_" + n.replace(" ", "_").lower(): model.predict_proba(contoh_masukan)[:, i]
+                    for i, n in enumerate(model.classes_)
+                },
+            })
+
+            mlflow.pyfunc.log_model(
+                artifact_path="model",
+                python_model=pembungkus,
+                artifacts={"model_sklearn": str(jalur_sklearn)},
+                signature=infer_signature(contoh_masukan, contoh_keluaran),
+                input_example=contoh_masukan,
+                pip_requirements=[
+                    "mlflow==2.19.0",
+                    "scikit-learn==1.5.2",
+                    "pandas==2.3.3",
+                    "numpy==1.26.4",
+                    "joblib>=1.4",
+                ],
+            )
 
         mlflow.set_tags({
             "kriteria": "3 - Workflow CI",

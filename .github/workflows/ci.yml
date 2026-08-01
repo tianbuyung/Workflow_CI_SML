@@ -122,10 +122,13 @@ jobs:
           print(f"Baseline naif    : {naif:.4f}")
           print(f"Selisih          : {selisih:+.4f}")
 
-          # Artefak model wajib ada
+          # Artefak model wajib ada. Model yang di-serve adalah pembungkus
+          # pyfunc, sehingga penandanya MLmodel — bukan model.pkl seperti pada
+          # model sklearn biasa.
           jalur = [a.path for a in c.list_artifacts(run_id, "model")]
-          if "model/model.pkl" not in jalur:
-              print("GAGAL: artefak model tidak ditemukan"); sys.exit(1)
+          if "model/MLmodel" not in jalur:
+              print(f"GAGAL: artefak model tidak ditemukan. Isi: {jalur}")
+              sys.exit(1)
 
           # Ambang keras: model yang jauh di bawah ini pasti bermasalah
           if f1 < 0.50:
