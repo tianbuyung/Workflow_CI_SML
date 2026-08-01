@@ -1,6 +1,6 @@
-artifact_location: file:///Users/septianmaulana/MyFiles/Build-with-ai/projecopedia/js-ts/dicoding/msml/Workflow-CI/MLProject/mlruns/0
-creation_time: 1785578975695
+artifact_location: file:///home/runner/work/Workflow_CI_SML/Workflow_CI_SML/MLProject/mlruns/0
+creation_time: 1785580525054
 experiment_id: '0'
-last_update_time: 1785578975695
+last_update_time: 1785580525054
 lifecycle_stage: active
 name: Default

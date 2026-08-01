@@ -1,0 +1,51 @@
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.12.7
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.5.2
+mlflow_version: 2.19.0
+model_size_bytes: 9572966
+model_uuid: e59762e2f6a64e1990993062c8efae66
+run_id: fac3ed14e5cd44b98d6b331074c142b4
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "advt_median", "required": true}, {"type":
+    "double", "name": "advt_mean", "required": true}, {"type": "double", "name": "rasio_mean_median",
+    "required": true}, {"type": "double", "name": "market_cap", "required": true},
+    {"type": "double", "name": "harga_median", "required": true}, {"type": "double",
+    "name": "volume_median", "required": true}, {"type": "double", "name": "turnover_bps",
+    "required": true}, {"type": "double", "name": "amihud_per_miliar", "required":
+    true}, {"type": "double", "name": "volatilitas_tahunan", "required": true}, {"type":
+    "double", "name": "rentang_harian_relatif", "required": true}, {"type": "double",
+    "name": "max_drawdown", "required": true}, {"type": "double", "name": "beta_ihsg",
+    "required": true}, {"type": "double", "name": "pct_hari_volume_nol", "required":
+    true}, {"type": "double", "name": "pct_hari_harga_stagnan", "required": true},
+    {"type": "double", "name": "umur_listing_tahun", "required": true}, {"type": "double",
+    "name": "jumlah_hari_bursa", "required": true}, {"type": "long", "name": "sektor_Basic
+    Materials", "required": true}, {"type": "long", "name": "sektor_Consumer Cyclicals",
+    "required": true}, {"type": "long", "name": "sektor_Consumer Non-Cyclicals", "required":
+    true}, {"type": "long", "name": "sektor_Energy", "required": true}, {"type": "long",
+    "name": "sektor_Financials", "required": true}, {"type": "long", "name": "sektor_Healthcare",
+    "required": true}, {"type": "long", "name": "sektor_Industrials", "required":
+    true}, {"type": "long", "name": "sektor_Infrastructure", "required": true}, {"type":
+    "long", "name": "sektor_Properties & Real Estate", "required": true}, {"type":
+    "long", "name": "sektor_Technology", "required": true}, {"type": "long", "name":
+    "sektor_Tidak Diketahui", "required": true}, {"type": "long", "name": "sektor_Transportation
+    & Logistics", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "object", "shape": [-1]}}]'
+  params: null
+utc_time_created: '2026-08-01 10:35:36.037806'
